@@ -10,9 +10,8 @@ const getBaseUrl = () => {
     return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   }
 
-  throw new Error(
-    "No base url found, please set EXPO_PUBLIC_RORK_API_BASE_URL"
-  );
+  console.warn("No base URL found, using a placeholder. Please set EXPO_PUBLIC_RORK_API_BASE_URL in your environment variables.");
+  return "http://localhost:3000"; // Fallback for development purposes; adjust as needed
 };
 
 export const trpcClient = trpc.createClient({
