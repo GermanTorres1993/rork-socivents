@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Event } from '@/types';
 
 // Eventbrite API base URL for searching events
-const EVENTBRITE_API_URL = 'https://www.eventbriteapi.com/v3/events/search/';
+const EVENTBRITE_API_URL = 'https://www.eventbriteapi.com/v3/events/search';
 
 // Cache TTL (Time to Live) set to 1 hour (in milliseconds)
 const CACHE_TTL = 60 * 60 * 1000;
@@ -62,10 +62,17 @@ export const fetchEventbriteEvents = async (
       location
     )}&sort_by=date&expand=venue,logo&token=${EVENTBRITE_API_KEY}&page_size=${limit}`;
 
-    console.log('Fetching events from Eventbrite API...');
+    console.log('Fetching events from Eventbrite API...', { url: url.slice(0, 100) + '...' });
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Eventbrite API error: ${response.status} ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error('Eventbrite API returned non-JSON response:', contentType, 'Content:', text.slice(0, 200) + (text.length > 200 ? '...' : ''));
+      throw new Error('Non-JSON response from Eventbrite API');
     }
 
     const data = await response.json();
@@ -110,6 +117,7 @@ export const fetchEventbriteEvents = async (
     await AsyncStorage.setItem(cacheKey, JSON.stringify(normalizedEvents));
     await AsyncStorage.setItem(`${cacheKey}_timestamp`, currentTime.toString());
 
+    console.log(`Successfully fetched and cached ${normalizedEvents.length} events from Eventbrite`);
     return normalizedEvents;
   } catch (error) {
     console.error('Error fetching Eventbrite events:', error instanceof Error ? error.message : String(error));

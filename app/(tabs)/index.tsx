@@ -48,11 +48,14 @@ export default function DiscoverScreen() {
         friction: 8,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]).start(() => {
+      console.log("Fade in animation completed");
+    });
   }, []);
 
   useEffect(() => {
     console.log("Filtered events updated:", filteredEvents.length);
+    console.log("Filtered events data:", filteredEvents);
   }, [filteredEvents]);
 
   const handleCategorySelect = (category: EventCategory | "all") => {
@@ -179,7 +182,7 @@ export default function DiscoverScreen() {
           data={filteredEvents}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
-            console.log("Rendering event:", item.title); // Debugging log for each event
+            console.log("Rendering event in FlatList:", item.title);
             return <EventCard event={item} />;
           }}
           contentContainerStyle={styles.listContent}
