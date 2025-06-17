@@ -136,6 +136,7 @@ export const useEventStore = create<EventState>((set, get) => ({
       // Combine events from both sources
       const combinedEvents = [...supabaseEvents, ...eventbriteEvents];
       console.log("Total events combined:", combinedEvents.length, "Supabase:", supabaseEvents.length, "Eventbrite:", eventbriteEvents.length);
+      console.log("Debugging events data:", combinedEvents); // Debugging log to check events data
 
       set({ 
         events: combinedEvents, 

@@ -19,6 +19,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const slideAnim = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
+    console.log("EventCard mounted for event:", event.title); // Debugging log
     Animated.parallel([
       Animated.timing(opacityAnim, {
         toValue: 1,

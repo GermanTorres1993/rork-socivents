@@ -27,6 +27,7 @@ export default function DiscoverScreen() {
   const headerScaleAnim = useRef(new Animated.Value(0.95)).current;
 
   useEffect(() => {
+    console.log("Fetching events on component mount");
     fetchEvents();
     
     Animated.parallel([
@@ -50,11 +51,16 @@ export default function DiscoverScreen() {
     ]).start();
   }, []);
 
+  useEffect(() => {
+    console.log("Filtered events updated:", filteredEvents.length);
+  }, [filteredEvents]);
+
   const handleCategorySelect = (category: EventCategory | "all") => {
     filterByCategory(category);
   };
 
   const handleRefresh = () => {
+    console.log("Refreshing events");
     fetchEvents();
     setExternalEventsError(false);
   };
@@ -172,7 +178,10 @@ export default function DiscoverScreen() {
         <FlatList
           data={filteredEvents}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <EventCard event={item} />}
+          renderItem={({ item }) => {
+            console.log("Rendering event:", item.title); // Debugging log for each event
+            return <EventCard event={item} />;
+          }}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           refreshControl={
