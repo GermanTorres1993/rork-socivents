@@ -36,20 +36,35 @@ export const useChatStore = create<ChatState>((set, get) => ({
         .select(`
           id,
           title,
-          chat_rooms(id),
-          tickets!left(user_id)
-        `)
-        .or(`host_id.eq.${userId},tickets.user_id.eq.${userId}`);
+          host_id,
+          chat_rooms(id)
+        `);
 
       if (eventsError) {
         console.error("Chat rooms fetch error:", eventsError);
         throw eventsError;
       }
 
+      // Filter events where user is host or has tickets
+      const { data: userTickets, error: ticketsError } = await supabase
+        .from('tickets')
+        .select('event_id')
+        .eq('user_id', userId);
+
+      if (ticketsError) {
+        console.error("Tickets fetch error:", ticketsError);
+        throw ticketsError;
+      }
+
+      const ticketEventIds = (userTickets || []).map(ticket => ticket.event_id);
+      const filteredEvents = (userEvents || []).filter(event => 
+        event.host_id === userId || ticketEventIds.includes(event.id)
+      );
+
       // Get last messages for each chat room
       const chatRooms: ChatRoom[] = [];
       
-      for (const event of userEvents || []) {
+      for (const event of filteredEvents) {
         // Get the chat room ID (chat_rooms is an array, so we take the first one)
         const chatRoomsArray = Array.isArray(event.chat_rooms) ? event.chat_rooms : [event.chat_rooms];
         const chatRoomData = chatRoomsArray[0];
