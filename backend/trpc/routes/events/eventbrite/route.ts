@@ -4,7 +4,7 @@ import { publicProcedure } from "../../../create-context";
 export const fetchEventbriteEventsProcedure = publicProcedure
   .input(z.object({ location: z.string().default("London, UK"), limit: z.number().default(20) }))
   .query(async ({ input }) => {
-    const EVENTBRITE_API_KEY = process.env.EVENTBRITE_API_KEY || process.env.EXPO_PUBLIC_EVENTBRITE_API_KEY || 'TX3YBNW4W6MUB5XDHBO3';
+    const EVENTBRITE_API_KEY = process.env.EVENTBRITE_API_KEY || process.env.EXPO_PUBLIC_EVENTBRITE_API_KEY;
     const EVENTBRITE_API_URL = 'https://www.eventbriteapi.com/v3/events/search';
 
     if (!EVENTBRITE_API_KEY) {
