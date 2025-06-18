@@ -11,7 +11,7 @@ const CACHE_TTL = 60 * 60 * 1000;
 const DEFAULT_LOCATION = 'London, UK';
 
 // Environment variable for API key (to be set in .env)
-const EVENTBRITE_API_KEY = process.env.EXPO_PUBLIC_EVENTBRITE_API_KEY || '';
+const EVENTBRITE_API_KEY = process.env.EXPO_PUBLIC_EVENTBRITE_API_KEY || 'TX3YBNW4W6MUB5XDHBO3';
 
 // Type for Eventbrite API response (simplified for necessary fields)
 interface EventbriteEvent {
@@ -63,7 +63,11 @@ export const fetchEventbriteEvents = async (
     )}&sort_by=date&expand=venue,logo&token=${EVENTBRITE_API_KEY}&page_size=${limit}`;
 
     console.log('Fetching events from Eventbrite API...', { url: url.slice(0, 100) + '...' });
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${EVENTBRITE_API_KEY}`
+      }
+    });
     if (!response.ok) {
       throw new Error(`Eventbrite API error: ${response.status} ${response.statusText}`);
     }

@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     height: 60,
   },
   badgesContainer: {
-    position: "absolute",
+   I position: "absolute",
     top: spacing.lg,
     left: spacing.lg,
     flexDirection: "row",
