@@ -1,46 +1,27 @@
+import { publicProcedure } from "@backend/trpc/trpc";
 import { z } from "zod";
-import { publicProcedure } from "../../../create-context";
 
-export const fetchEventbriteEventsProcedure = publicProcedure
-  .input(z.object({ location: z.string().default("London, UK"), limit: z.number().default(20) }))
+export const eventbriteRoute = publicProcedure
+  .input(z.object({ location: z.string() }))
   .query(async ({ input }) => {
-    const EVENTBRITE_API_KEY = process.env.EVENTBRITE_API_KEY || process.env.EXPO_PUBLIC_EVENTBRITE_API_KEY;
-    const EVENTBRITE_API_URL = 'https://www.eventbriteapi.com/v3/events/search';
+    const token = process.env.EVENTBRITE_TOKEN;
+    if (!token) throw new Error("Eventbrite token is missing from env.");
 
-    if (!EVENTBRITE_API_KEY) {
-      console.warn('Eventbrite API key is not configured on the server. Returning empty events list.');
-      return [];
-    }
-
-    const url = `${EVENTBRITE_API_URL}?location.address=${encodeURIComponent(
-      input.location
-    )}&sort_by=date&expand=venue,logo&token=${EVENTBRITE_API_KEY}&page_size=${input.limit}`;
-
-    console.log('Fetching events from Eventbrite API via backend...', { location: input.location, limit: input.limit });
-    try {
-      const response = await fetch(url, {
+    const res = await fetch(
+      `https://www.eventbriteapi.com/v3/events/search?location.address=${input.location}&expand=venue`,
+      {
         headers: {
-          'Authorization': `Bearer ${EVENTBRITE_API_KEY}`
-        }
-      });
-      if (!response.ok) {
-        console.error(`Eventbrite API error: ${response.status} ${response.statusText}`);
-        return [];
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
+    );
 
-      const contentType = response.headers.get('content-type') || '';
-      if (!contentType.includes('application/json')) {
-        console.error('Eventbrite API returned non-JSON response:', contentType);
-        const text = await response.text();
-        console.error('Response content:', text.slice(0, 200) + (text.length > 200 ? '...' : ''));
-        return [];
-      }
-
-      const data = await response.json();
-      console.log('Successfully fetched Eventbrite events from backend:', data.events?.length || 0);
-      return data.events || [];
-    } catch (error) {
-      console.error('Error fetching Eventbrite events from backend:', error instanceof Error ? error.message : String(error));
-      return [];
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Eventbrite API responded with ${res.status}: ${text}`);
     }
+
+    const data = await res.json();
+    return data.events;
   });
