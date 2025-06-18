@@ -1,4 +1,4 @@
-import { publicProcedure } from "../../../trpc/create-context";
+import { publicProcedure } from "../../../create-context";
 import { z } from 'zod';
 
 export const fetchEventbriteEventsProcedure = publicProcedure.query(async () => {
