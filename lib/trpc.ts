@@ -1,9 +1,8 @@
 import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
-import type { AppRouter } from '@repo/api';
+import type { AppRouter } from '../backend/trpc/app-router';
 import superjson from 'superjson';
 
 export const api = createTRPCProxyClient<AppRouter>({
-  transformer: superjson,
   links: [
     httpBatchLink({
       url: process.env.EXPO_PUBLIC_API_URL + '/trpc',
@@ -13,6 +12,7 @@ export const api = createTRPCProxyClient<AppRouter>({
         }
         return {};
       },
+      transformer: superjson,
     }),
   ],
 });
